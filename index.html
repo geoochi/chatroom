@@ -39,8 +39,7 @@
     <button onclick="sendMessage()">发送</button>
 
     <script>
-      // 确保使用 wss:// 协议
-      const ws = new WebSocket('wss://localhost:3001')
+      const ws = new WebSocket('ws://localhost:3000')
       const messageContainer = document.getElementById('messageContainer')
       const messageInput = document.getElementById('messageInput')
 

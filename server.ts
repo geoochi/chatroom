@@ -1,21 +1,15 @@
-import https from 'https'
-import fs from 'fs'
+import http from 'http'
 import { WebSocketServer } from 'ws'
-
-const server = https.createServer({
-  cert: fs.readFileSync('localhost+1.pem'),
-  key: fs.readFileSync('localhost+1-key.pem'),
-})
+import fs from 'fs'
+const server = http.createServer()
 
 // 添加基本的 HTTP/HTTPS 响应
 server.on('request', (req, res) => {
   res.writeHead(200, {
-    'Content-Type': 'text/plain; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',  // 允许所有来源访问
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',  // 允许的 HTTP 方法
-    'Access-Control-Allow-Headers': 'Content-Type',  // 允许的请求头
+    'Content-Type': 'text/html; charset=utf-8',
   })
-  res.end('WebSocket 服务器正在运行。请返回到 WebSocket 客户端页面。')
+  // res.end('WebSocket 服务器正在运行。请返回到 WebSocket 客户端页面。')
+  res.end(fs.readFileSync('index.html'))
 })
 
 // 创建 WebSocket 服务器实例
@@ -43,6 +37,7 @@ wss.on('connection', ws => {
 })
 
 // 启动服务器
-server.listen(3001, () => {
-  console.log('WebSocket 服务器运行在 wss://localhost:3001')
+server.listen(3000, () => {
+  console.log('WebSocket 服务器运行在 ws://localhost:3000')
+  console.log('Http 服务器运行在 http://localhost:3000')
 })
