@@ -1,6 +1,7 @@
 import http from 'http'
 import { WebSocketServer, WebSocket } from 'ws'
 import fs from 'fs'
+import Database from 'better-sqlite3'
 
 const server = http.createServer()
 
@@ -9,8 +10,28 @@ interface ChatMessage {
   time: string
   content: string
 }
-const chatHistory: ChatMessage[] = []
+
 const clients = new Set<WebSocket>()
+
+// Initialize SQLite database
+const db = new Database('db/chat.db')
+
+// Create messages table if not exists
+db.exec(`
+  CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time TEXT NOT NULL,
+    content TEXT NOT NULL
+  )
+`)
+
+// Prepare statements
+const insertMessage = db.prepare(
+  'INSERT INTO messages (time, content) VALUES (?, ?)'
+)
+const getAllMessages = db.prepare(
+  'SELECT time, content FROM messages ORDER BY id ASC'
+)
 
 function t() {
   return new Date().toLocaleString()
@@ -25,12 +46,30 @@ function broadcast(message: string) {
   })
 }
 
+// Load chat history from database
+function loadChatHistory(): ChatMessage[] {
+  try {
+    return getAllMessages.all() as ChatMessage[]
+  } catch (error) {
+    console.error('Error loading chat history:', error)
+    return []
+  }
+}
+
+// Save message to database
+function saveMessage(message: ChatMessage) {
+  try {
+    insertMessage.run(message.time, message.content)
+  } catch (error) {
+    console.error('Error saving message:', error)
+  }
+}
+
 // basic HTTP/HTTPS response
 server.on('request', (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8',
   })
-  // res.end('WebSocket server is running. Please return to the WebSocket client page.')
   res.end(fs.readFileSync('index.html'))
 })
 
@@ -45,6 +84,7 @@ wss.on('connection', ws => {
   clients.add(ws)
 
   // Send chat history to new client
+  const chatHistory = loadChatHistory()
   ws.send(
     JSON.stringify({
       type: 'history',
@@ -57,12 +97,14 @@ wss.on('connection', ws => {
     const currentTime = t()
     console.log(`[${currentTime}] received: ${message.toString()}`)
 
-    // Store message in chat history
+    // Create new message
     const newMessage = {
       time: currentTime,
       content: message.toString(),
     }
-    chatHistory.push(newMessage)
+
+    // Save to database
+    saveMessage(newMessage)
 
     // Broadcast message to all clients
     broadcast(
@@ -84,13 +126,20 @@ wss.on('connection', ws => {
     time: t(),
     content: 'welcome to the chat room!',
   }
-  chatHistory.push(welcomeMsg)
+  saveMessage(welcomeMsg)
   ws.send(
     JSON.stringify({
       type: 'message',
       message: welcomeMsg,
     })
   )
+})
+
+// Handle process termination
+process.on('SIGINT', () => {
+  db.close()
+  console.log('Database connection closed.')
+  process.exit(0)
 })
 
 // start server

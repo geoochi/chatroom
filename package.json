@@ -5,9 +5,15 @@
     "dev": "node server.ts"
   },
   "dependencies": {
+    "better-sqlite3": "^11.8.1",
     "ws": "^8.18.1"
   },
   "devDependencies": {
     "@types/ws": "^8.5.14"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
   }
 }
