@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebSocket 客户端</title>
+    <title>WebSocket Demo</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -33,12 +33,15 @@
     </style>
   </head>
   <body>
-    <h2>WebSocket 客户端测试</h2>
+    <h2>WebSocket Demo</h2>
     <div id="messageContainer"></div>
-    <input type="text" id="messageInput" placeholder="输入消息..." />
-    <button onclick="sendMessage()">发送</button>
+    <input type="text" id="messageInput" placeholder="input message..." />
+    <button onclick="sendMessage()">Send</button>
 
     <script>
+      function t() {
+        return new Date().toLocaleString()
+      }
       const ws = new WebSocket('ws://localhost:3000')
       // or your server url
       // const ws = new WebSocket('wss://YOUR_HOST')
@@ -55,31 +58,31 @@
       }
 
       ws.onopen = () => {
-        appendMessage('已连接到服务器')
+        appendMessage(`[${t()}] connected to server`)
       }
 
       ws.onmessage = event => {
-        appendMessage(`收到: ${event.data}`, 'received')
+        appendMessage(`[${t()}] ${event.data}`, 'received')
       }
 
       ws.onclose = () => {
-        appendMessage('与服务器断开连接')
+        appendMessage(`[${t()}] disconnected from server`)
       }
 
       ws.onerror = error => {
-        appendMessage(`错误: ${error.message}`, 'error')
+        appendMessage(`[${t()}] ${error.message}`)
       }
 
       function sendMessage() {
         const message = messageInput.value
         if (message) {
           ws.send(message)
-          appendMessage(`发送: ${message}`, 'sent')
+          appendMessage(`[${t()}] ${message}`, 'sent')
           messageInput.value = ''
         }
       }
 
-      // 支持按回车发送消息
+      // support send message by Enter
       messageInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') {
           sendMessage()

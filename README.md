@@ -1,15 +1,12 @@
 # WebSocket server demo
 
-## Install
+## Local development
 
 ```bash
 pnpm install
-```
-
-## Start
-
-```bash
 pnpm start
 ```
 
-and visit `http://localhost:3001` in browser
+then visit http://localhost:3000 in browser
+
+or try this: https://websocket.geoochi.com

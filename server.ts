@@ -3,41 +3,45 @@ import { WebSocketServer } from 'ws'
 import fs from 'fs'
 const server = http.createServer()
 
-// 添加基本的 HTTP/HTTPS 响应
+function t() {
+  return new Date().toLocaleString()
+}
+
+// basic HTTP/HTTPS response
 server.on('request', (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8',
   })
-  // res.end('WebSocket 服务器正在运行。请返回到 WebSocket 客户端页面。')
+  // res.end('WebSocket server is running. Please return to the WebSocket client page.')
   res.end(fs.readFileSync('index.html'))
 })
 
-// 创建 WebSocket 服务器实例
+// create WebSocket server instance
 const wss = new WebSocketServer({ server })
 
-// 监听连接事件
+// listen connection event
 wss.on('connection', ws => {
-  console.log('新的客户端连接')
+  console.log(`[${t()}] new client connected`)
 
-  // 监听消息事件
+  // listen message event
   ws.on('message', message => {
-    console.log('收到消息:', message.toString())
+    console.log(`[${t()}] received: ${message.toString()}`)
 
-    // 发送回复消息
-    ws.send(`服务器收到消息: ${message}`)
+    // send reply message
+    ws.send(`${message}`)
   })
 
-  // 监听关闭事件
+  // listen close event
   ws.on('close', () => {
-    console.log('客户端断开连接')
+    console.log(`[${t()}] client disconnected`)
   })
 
-  // 发送欢迎消息
-  ws.send('欢迎连接到 WebSocket 服务器！')
+  // send welcome message
+  ws.send('welcome to the websocket server!')
 })
 
-// 启动服务器
+// start server
 server.listen(3000, () => {
-  console.log('WebSocket 服务器运行在 ws://localhost:3000')
-  console.log('Http 服务器运行在 http://localhost:3000')
+  console.log(`WebSocket server is running on ws://localhost:3000`)
+  console.log(`Http server is running on http://localhost:3000`)
 })
