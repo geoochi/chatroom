@@ -9,11 +9,7 @@
     "ws": "^8.18.1"
   },
   "devDependencies": {
-    "@types/ws": "^8.5.14"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3"
-    ]
+    "@types/ws": "^8.5.14",
+    "@types/better-sqlite3": "^7.6.12"
   }
 }

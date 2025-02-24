@@ -126,7 +126,7 @@ wss.on('connection', ws => {
     time: t(),
     content: 'welcome to the chat room!',
   }
-  saveMessage(welcomeMsg)
+  // saveMessage(welcomeMsg)
   ws.send(
     JSON.stringify({
       type: 'message',
