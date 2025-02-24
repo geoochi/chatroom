@@ -1,0 +1,7 @@
+#! /bin/sh
+
+if [ -f app.pid ];
+then
+    kill $(cat app.pid)
+    rm app.pid
+fi

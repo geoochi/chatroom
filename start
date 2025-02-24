@@ -1,0 +1,6 @@
+#! /bin/sh
+
+if [ ! -f app.pid ];
+then
+    nohup pnpm start > log/$(date +"%Y-%m-%d_%H-%M-%S").log 2>&1 & echo $! > app.pid
+fi

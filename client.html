@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebSocket 客户端</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      #messageContainer {
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 300px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+      }
+      #messageInput {
+        width: 70%;
+        padding: 5px;
+      }
+      button {
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>WebSocket 客户端测试</h2>
+    <div id="messageContainer"></div>
+    <input type="text" id="messageInput" placeholder="输入消息..." />
+    <button onclick="sendMessage()">发送</button>
+
+    <script>
+      // 确保使用 wss:// 协议
+      const ws = new WebSocket('wss://localhost:3001')
+      const messageContainer = document.getElementById('messageContainer')
+      const messageInput = document.getElementById('messageInput')
+
+      function appendMessage(message, type = 'info') {
+        const div = document.createElement('div')
+        div.textContent = message
+        div.style.color =
+          type === 'sent' ? 'blue' : type === 'received' ? 'green' : 'black'
+        messageContainer.appendChild(div)
+        messageContainer.scrollTop = messageContainer.scrollHeight
+      }
+
+      ws.onopen = () => {
+        appendMessage('已连接到服务器')
+      }
+
+      ws.onmessage = event => {
+        appendMessage(`收到: ${event.data}`, 'received')
+      }
+
+      ws.onclose = () => {
+        appendMessage('与服务器断开连接')
+      }
+
+      ws.onerror = error => {
+        appendMessage(`错误: ${error.message}`, 'error')
+      }
+
+      function sendMessage() {
+        const message = messageInput.value
+        if (message) {
+          ws.send(message)
+          appendMessage(`发送: ${message}`, 'sent')
+          messageInput.value = ''
+        }
+      }
+
+      // 支持按回车发送消息
+      messageInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+          sendMessage()
+        }
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "type": "module",
+  "packageManager": "pnpm@10.4.1",
+  "scripts": {
+    "start": "node server.ts"
+  },
+  "dependencies": {
+    "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.14"
+  }
+}
