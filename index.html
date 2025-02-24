@@ -1,93 +1,234 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>WebSocket Demo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Chat Room</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        background: #f5f5f5;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .chat-container {
+        width: 100%;
         max-width: 800px;
-        margin: 0 auto;
+        height: 100vh;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .chat-header {
         padding: 20px;
+        background: #2196f3;
+        color: white;
+        font-size: 1.2em;
+        font-weight: bold;
       }
-      #messageContainer {
-        border: 1px solid #ccc;
-        padding: 10px;
-        height: 300px;
+
+      .chat-messages {
+        flex: 1;
+        padding: 20px;
         overflow-y: auto;
-        margin-bottom: 10px;
       }
-      #messageInput {
-        width: 70%;
-        padding: 5px;
+
+      .message {
+        margin-bottom: 15px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        max-width: 80%;
+        word-wrap: break-word;
       }
+
+      .message .time {
+        font-size: 0.8em;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .message .content {
+        font-size: 1em;
+      }
+
+      .chat-input {
+        padding: 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #eee;
+        display: flex;
+        gap: 10px;
+      }
+
+      input[type='text'] {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1em;
+      }
+
       button {
-        padding: 5px 10px;
-        background-color: #4caf50;
+        padding: 10px 20px;
+        background: #2196f3;
         color: white;
         border: none;
+        border-radius: 4px;
         cursor: pointer;
+        font-size: 1em;
       }
+
       button:hover {
-        background-color: #45a049;
+        background: #1976d2;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .connection-status {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        display: none;
+      }
+
+      .connection-status.connected {
+        background: #4caf50;
+        color: white;
+        display: block;
+      }
+
+      .connection-status.disconnected {
+        background: #f44336;
+        color: white;
+        display: block;
       }
     </style>
   </head>
   <body>
-    <h2>WebSocket Demo</h2>
-    <div id="messageContainer"></div>
-    <input type="text" id="messageInput" placeholder="input message..." />
-    <button onclick="sendMessage()">Send</button>
+    <div class="connection-status">Connecting...</div>
+    <div class="chat-container">
+      <div class="chat-header">WebSocket Chat Room</div>
+      <div class="chat-messages" id="messageContainer"></div>
+      <div class="chat-input">
+        <input
+          type="text"
+          id="messageInput"
+          placeholder="Type a message..."
+          autocomplete="off"
+        />
+        <button id="sendButton">Send</button>
+      </div>
+    </div>
 
     <script>
-      function t() {
-        return new Date().toLocaleString()
-      }
-      const ws = new WebSocket('ws://localhost:3000')
-      // or your server url
-      // const ws = new WebSocket('wss://YOUR_HOST')
       const messageContainer = document.getElementById('messageContainer')
       const messageInput = document.getElementById('messageInput')
+      const sendButton = document.getElementById('sendButton')
+      const connectionStatus = document.querySelector('.connection-status')
+      let ws = null
 
-      function appendMessage(message, type = 'info') {
-        const div = document.createElement('div')
-        div.textContent = message
-        div.style.color =
-          type === 'sent' ? 'blue' : type === 'received' ? 'green' : 'black'
-        messageContainer.appendChild(div)
-        messageContainer.scrollTop = messageContainer.scrollHeight
+      function connect() {
+        ws = new WebSocket(
+          window.location.host.startsWith('localhost') ||
+          window.location.host.startsWith('127.0.0.1')
+            ? 'ws://' + window.location.host
+            : 'wss://' + window.location.host
+        )
+
+        ws.onopen = () => {
+          connectionStatus.textContent = 'Connected'
+          connectionStatus.className = 'connection-status connected'
+          sendButton.disabled = false
+        }
+
+        ws.onclose = () => {
+          connectionStatus.textContent = 'Disconnected - Reconnecting...'
+          connectionStatus.className = 'connection-status disconnected'
+          sendButton.disabled = true
+          setTimeout(connect, 1000) // 重连
+        }
+
+        ws.onerror = error => {
+          console.error('WebSocket error:', error)
+        }
+
+        ws.onmessage = event => {
+          const data = JSON.parse(event.data)
+
+          if (data.type === 'history') {
+            // Clear existing messages
+            messageContainer.innerHTML = ''
+            // Display chat history
+            data.messages.forEach(message => {
+              appendMessage(message)
+            })
+          } else if (data.type === 'message') {
+            appendMessage(data.message)
+          }
+
+          // Scroll to bottom
+          messageContainer.scrollTop = messageContainer.scrollHeight
+        }
       }
 
-      ws.onopen = () => {
-        appendMessage(`[${t()}] connected to server`)
-      }
+      function appendMessage(message) {
+        if (message.content === 'welcome to the chat room!') {
+          return
+        }
 
-      ws.onmessage = event => {
-        appendMessage(`[${t()}] ${event.data}`, 'received')
-      }
+        const messageDiv = document.createElement('div')
+        messageDiv.className = 'message'
 
-      ws.onclose = () => {
-        appendMessage(`[${t()}] disconnected from server`)
-      }
+        const timeDiv = document.createElement('div')
+        timeDiv.className = 'time'
+        timeDiv.textContent = message.time
 
-      ws.onerror = error => {
-        appendMessage(`[${t()}] ${error.message}`)
+        const contentDiv = document.createElement('div')
+        contentDiv.className = 'content'
+        contentDiv.textContent = message.content
+
+        messageDiv.appendChild(timeDiv)
+        messageDiv.appendChild(contentDiv)
+        messageContainer.appendChild(messageDiv)
       }
 
       function sendMessage() {
-        const message = messageInput.value
-        if (message) {
+        const message = messageInput.value.trim()
+        if (message && ws && ws.readyState === WebSocket.OPEN) {
           ws.send(message)
-          appendMessage(`[${t()}] ${message}`, 'sent')
           messageInput.value = ''
         }
       }
 
-      // support send message by Enter
+      // Event listeners
+      sendButton.addEventListener('click', sendMessage)
+
       messageInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') {
           sendMessage()
         }
       })
+
+      // Initial connection
+      connect()
     </script>
   </body>
 </html>

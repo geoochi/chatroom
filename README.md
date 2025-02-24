@@ -9,4 +9,4 @@ pnpm start
 
 then visit http://localhost:3000 in browser
 
-or try this: https://websocket.geoochi.com
+or try this: https://chatroom.geoochi.com
