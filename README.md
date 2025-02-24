@@ -1,12 +1,13 @@
-# WebSocket server demo
+# chatroom: a simple websocket demo
 
-## Local development
+### how to start
 
 ```bash
 pnpm install
-pnpm start
+pnpm dev
 ```
 
 then visit http://localhost:3000 in browser
 
 or try this: https://chatroom.geoochi.com
+(no user system, no password, just for demo)
