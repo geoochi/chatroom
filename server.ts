@@ -143,7 +143,7 @@ process.on('SIGINT', () => {
 })
 
 // start server
-server.listen(3000, () => {
-  console.log(`WebSocket server is running on ws://localhost:3000`)
-  console.log(`Http server is running on http://localhost:3000`)
+server.listen(3001, () => {
+  console.log(`WebSocket server is running on ws://localhost:3001`)
+  console.log(`Http server is running on http://localhost:3001`)
 })

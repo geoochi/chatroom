@@ -7,7 +7,7 @@ pnpm install
 pnpm dev
 ```
 
-then visit http://localhost:3000 in browser
+then visit http://localhost:3001 in browser
 
 or try this: https://chatroom.geoochi.com
 (no user system, no password, just for demo)
