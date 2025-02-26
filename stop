@@ -4,4 +4,6 @@ if [ -f app.pid ];
 then
     kill $(cat app.pid)
     rm app.pid
+else
+    echo "app is not running"
 fi

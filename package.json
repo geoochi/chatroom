@@ -1,10 +1,7 @@
 {
-  "type": "module",
   "packageManager": "pnpm@10.4.1",
   "scripts": {
-    "d": "node server.ts",
-    "start": "./start",
-    "stop": "./stop"
+    "d": "ts-node-dev chat.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",
@@ -12,6 +9,7 @@
   },
   "devDependencies": {
     "@types/ws": "^8.5.14",
-    "@types/better-sqlite3": "^7.6.12"
+    "@types/better-sqlite3": "^7.6.12",
+    "ts-node-dev": "^2.0.0"
   }
 }

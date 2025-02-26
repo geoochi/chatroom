@@ -2,5 +2,7 @@
 
 if [ ! -f app.pid ];
 then
-    nohup node server.ts > log/$(date +"%Y-%m-%d_%H-%M-%S").log 2>&1 & echo $! > app.pid
+    nohup pnpm ts-node-dev chat.ts > log/$(date +"%Y-%m-%d_%H-%M-%S").log 2>&1 & echo $! > app.pid
+else
+    echo "app is already running"
 fi
