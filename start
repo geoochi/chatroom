@@ -1,8 +1,8 @@
 #! /bin/sh
 
-if [ ! -f app.pid ];
+if [ -z $(ps x | grep 'wrap.js chat.ts' | grep -v grep | awk '{print $1}') ];
 then
-    nohup pnpm ts-node-dev chat.ts > log/$(date +"%Y-%m-%d_%H-%M-%S").log 2>&1 & echo $! > app.pid
+    nohup pnpm ts-node-dev chat.ts > log/$(date +"%Y-%m-%d_%H-%M-%S").log 2>&1 &
 else
     echo "app is already running"
 fi

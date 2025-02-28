@@ -1,9 +1,8 @@
 #! /bin/sh
 
-if [ -f app.pid ];
+if [ ! -z $(ps x | grep 'wrap.js chat.ts' | grep -v grep | awk '{print $1}') ];
 then
-    kill $(cat app.pid)
-    rm app.pid
+    pkill -9 -f "wrap.js chat.ts"
 else
     echo "app is not running"
 fi
