@@ -1,8 +1,8 @@
 #! /bin/sh
 
-if [ ! -z $(ps x | grep 'wrap.js chat.ts' | grep -v grep | awk '{print $1}') ];
+if [ ! -z $(ps x | grep 'node chat.ts' | grep -v grep | awk '{print $1}') ];
 then
-    pkill -9 -f "wrap.js chat.ts"
+    pkill -9 -f "node chat.ts"
 else
     echo "app is not running"
 fi
