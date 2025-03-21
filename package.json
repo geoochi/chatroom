@@ -1,7 +1,8 @@
 {
   "packageManager": "pnpm@10.5.0",
   "scripts": {
-    "d": "ts-node-dev chat.ts"
+    "d": "ts-node-dev chat.ts",
+    "p": "node chat.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

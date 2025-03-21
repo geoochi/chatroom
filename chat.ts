@@ -67,10 +67,17 @@ function saveMessage(message: ChatMessage) {
 
 // basic HTTP/HTTPS response
 server.on('request', (req, res) => {
-  res.writeHead(200, {
-    'Content-Type': 'text/html; charset=utf-8',
-  })
-  res.end(fs.readFileSync('index.html'))
+  if (req.url === '/') {
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+    })
+    res.end(fs.readFileSync('index.html'))
+  } else {
+    res.writeHead(404, {
+      'Content-Type': 'text/plain; charset=utf-8',
+    })
+    res.end('Not found')
+  }
 })
 
 // create WebSocket server instance
